@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}" lang="ar" dir="rtl">
+<head>
+    <title>المستخدمون</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 class="page-title">المستخدمون</h1>
+                <div class="breadcrumb">
+                    <a th:href="@{/dashboard}">الرئيسية</a> / المستخدمون
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>اسم المستخدم</th>
+                <th>الاسم الكامل</th>
+                <th>البريد الإلكتروني</th>
+                <th>الدور</th>
+                <th>الحالة</th>
+                <th>تاريخ الإنشاء</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user, iterStat : ${users}">
+                <td th:text="${iterStat.count}">1</td>
+                <td th:text="${user.username}">username</td>
+                <td th:text="${user.fullName}">الاسم الكامل</td>
+                <td th:text="${user.email}">email@example.com</td>
+                <td>
+                            <span class="badge"
+                                  th:classappend="${user.role.name() == 'ADMIN'} ? 'badge-danger' :
+                                                 (${user.role.name() == 'MANAGER'} ? 'badge-warning' : 'badge-info')"
+                                  th:text="${user.role.arabicName}">الدور</span>
+                </td>
+                <td>
+                            <span class="badge"
+                                  th:classappend="${user.enabled} ? 'badge-success' : 'badge-danger'"
+                                  th:text="${user.enabled ? 'نشط' : 'غير نشط'}">نشط</span>
+                </td>
+                <td th:text="${#temporals.format(user.createdAt, 'yyyy/MM/dd HH:mm')}">2024/01/01</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(users)}">
+                <td colspan="7" style="text-align: center; color: #999; padding: 40px;">
+                    لا يوجد مستخدمون
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

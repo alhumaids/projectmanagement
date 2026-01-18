@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}" lang="ar" dir="rtl">
+<head>
+    <title th:text="${project.id != null ? 'تعديل المشروع' : 'مشروع جديد'}">مشروع جديد</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header">
+        <h1 class="page-title" th:text="${project.id != null ? 'تعديل المشروع' : 'مشروع جديد'}">مشروع جديد</h1>
+        <div class="breadcrumb">
+            <a th:href="@{/dashboard}">الرئيسية</a> /
+            <a th:href="@{/projects}">المشاريع</a> /
+            <span th:text="${project.id != null ? 'تعديل' : 'جديد'}">جديد</span>
+        </div>
+    </div>
+
+    <div class="card" style="max-width: 800px;">
+        <form th:action="@{/projects/save}" th:object="${project}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="form-group">
+                <label class="form-label" for="name">اسم المشروع *</label>
+                <input type="text" class="form-control" id="name" th:field="*{name}" required />
+                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color: red; font-size: 13px; margin-top: 5px;"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="description">الوصف</label>
+                <textarea class="form-control" id="description" th:field="*{description}" rows="4"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label class="form-label" for="startDate">تاريخ البداية *</label>
+                    <input type="date" class="form-control" id="startDate" th:field="*{startDate}" required />
+                    <div th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" style="color: red; font-size: 13px; margin-top: 5px;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="endDate">تاريخ النهاية</label>
+                    <input type="date" class="form-control" id="endDate" th:field="*{endDate}" />
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label class="form-label" for="status">الحالة *</label>
+                    <select class="form-control" id="status" th:field="*{status}" required>
+                        <option th:each="status : ${T(com.projectmanagement.model.Project.Status).values()}"
+                                th:value="${status}"
+                                th:text="${status.arabicName}">الحالة</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="priority">الأولوية *</label>
+                    <select class="form-control" id="priority" th:field="*{priority}" required>
+                        <option th:each="priority : ${T(com.projectmanagement.model.Project.Priority).values()}"
+                                th:value="${priority}"
+                                th:text="${priority.arabicName}">الأولوية</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a th:href="@{/projects}" class="btn btn-secondary">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

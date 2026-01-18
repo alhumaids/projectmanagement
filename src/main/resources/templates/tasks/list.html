@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}" lang="ar" dir="rtl">
+<head>
+    <title>المهام</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 class="page-title">المهام</h1>
+                <div class="breadcrumb">
+                    <a th:href="@{/dashboard}">الرئيسية</a> / المهام
+                </div>
+            </div>
+            <a th:href="@{/tasks/new}" class="btn btn-primary">
+                <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-left: 5px;" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                </svg>
+                مهمة جديدة
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <div class="card">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>عنوان المهمة</th>
+                <th>المشروع</th>
+                <th>المكلف بها</th>
+                <th>الحالة</th>
+                <th>الأولوية</th>
+                <th>تاريخ الاستحقاق</th>
+                <th>الإجراءات</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="task, iterStat : ${tasks}">
+                <td th:text="${iterStat.count}">1</td>
+                <td th:text="${task.title}">عنوان المهمة</td>
+                <td th:text="${task.project.name}">اسم المشروع</td>
+                <td th:text="${task.assignedTo != null ? task.assignedTo.fullName : 'غير محدد'}">المكلف</td>
+                <td>
+                            <span class="badge"
+                                  th:classappend="${task.status.name() == 'COMPLETED'} ? 'badge-success' :
+                                                 (${task.status.name() == 'IN_PROGRESS'} ? 'badge-info' :
+                                                 (${task.status.name() == 'BLOCKED'} ? 'badge-danger' : 'badge-warning'))"
+                                  th:text="${task.status.arabicName}">الحالة</span>
+                </td>
+                <td>
+                            <span class="badge"
+                                  th:classappend="${task.priority.name() == 'HIGH' || task.priority.name() == 'URGENT'} ? 'badge-danger' :
+                                                 (${task.priority.name() == 'MEDIUM'} ? 'badge-warning' : 'badge-info')"
+                                  th:text="${task.priority.arabicName}">الأولوية</span>
+                </td>
+                <td>
+                            <span th:if="${task.dueDate != null}"
+                                  th:text="${#temporals.format(task.dueDate, 'yyyy/MM/dd')}"
+                                  th:style="${task.overdue ? 'color: red; font-weight: bold;' : ''}">2024/01/01</span>
+                    <span th:unless="${task.dueDate != null}">غير محدد</span>
+                    <div th:if="${task.overdue}" style="color: red; font-size: 11px;">
+                        ⚠️ متأخرة
+                    </div>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <a th:href="@{/tasks/edit/{id}(id=${task.id})}" class="action-btn action-btn-edit">تعديل</a>
+                        <a th:href="@{/tasks/delete/{id}(id=${task.id})}"
+                           onclick="return confirm('هل أنت متأكد من حذف هذه المهمة؟')"
+                           class="action-btn action-btn-delete">حذف</a>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(tasks)}">
+                <td colspan="8" style="text-align: center; color: #999; padding: 40px;">
+                    لا توجد مهام حالياً
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

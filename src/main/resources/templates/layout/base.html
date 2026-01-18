@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">نظام إدارة المشاريع</title>
+    <style>
+        :root { --sidebar-width: 250px; }
+
+        html, body {
+            height: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden; /* prevent horizontal scroll */
+        }
+
+        /* No global padding by default (mobile-first). On desktop we reserve space for the fixed right sidebar */
+        /* body will not have padding to avoid unexpected layout shifts */
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Header */
+        .header {
+            background-color: white;
+            padding: 15px 0; /* horizontal padding moved to .header-inner */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: block;
+            position: relative;
+            z-index: 1100;
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 120px;
+            height: auto;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .notification-icon {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 70px;
+            width: var(--sidebar-width);
+            height: calc(100vh - 70px);
+            background-color: white;
+            box-shadow: -2px 0 4px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            z-index: 1000;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 25px;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: #f0f0f0;
+            color: #1a7f64;
+        }
+
+        .sidebar-menu a.active {
+            border-right: 3px solid #1a7f64;
+        }
+
+        .menu-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            margin-top: 70px;
+            padding: 30px;
+        }
+
+        /* wrapper that reserves space for the fixed right sidebar on desktop */
+        .app-container {
+            padding-right: 0; /* mobile-first */
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .breadcrumb {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: #1a7f64;
+            text-decoration: none;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #1a7f64;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #156553;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-icon {
+            padding: 8px 15px;
+            border-radius: 4px;
+            background-color: #e8f5e9;
+            color: #1a7f64;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Cards */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .data-table thead {
+            background-color: #d4edda;
+        }
+
+        .data-table th {
+            padding: 12px;
+            text-align: right;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #c3e6cb;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Status Badges */
+        .badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* custom progress color used for mid-low progress */
+        .bg-orange {
+            background-color: #f6b26b !important; /* orange */
+            color: #623d1f !important;
+        }
+
+        /* progress bar helpers (used by dashboard) */
+        .progress-bar {
+            height: 100%;
+            transition: width 0.5s ease;
+            display: block;
+        }
+
+        .bg-success { background-color: #1a7f64 !important; }
+        .bg-warning { background-color: #f6c343 !important; }
+        .bg-danger  { background-color: #e57373 !important; }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #1a7f64;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .action-btn-edit {
+            background-color: #e8f5e9;
+            color: #1a7f64;
+        }
+
+        .action-btn-delete {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .action-btn-view {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        /* Responsive: on small screens the sidebar will overlay, so remove the reserved margins */
+        @media (max-width: 991px) {
+            .header-inner {
+                width: 100%;
+                max-width: 100%;
+                padding: 0 15px;
+            }
+            .main-content {
+                margin-left: 0;
+                max-width: 100%;
+                width: 100%;
+                padding: 20px;
+            }
+            .sidebar {
+                /* allow overlay behavior on small screens */
+                position: fixed;
+                right: 0;
+                top: 70px;
+                transform: translateX(0);
+            }
+        }
+
+        @media (min-width: 992px) {
+            .header-inner {
+                margin-right: var(--sidebar-width);
+            }
+            .main-content {
+                margin-right: 0;
+            }
+            /* Add desktop padding so inner content stays left of the fixed sidebar (RTL-safe) */
+            box-sizing: border-box;
+            body { padding-inline-end: var(--sidebar-width); padding-right: var(--sidebar-width); }
+            /* reserve space on the right by adding a right margin to the app container */
+            .app-container {
+                margin-right: var(--sidebar-width);
+                padding-right: 0;
+                width: auto;
+                max-width: none;
+                box-sizing: border-box;
+            }
+            /* ensure the main content respects the container space */
+            .app-container .main-content {
+                max-width: 100%;
+                margin-right: 0;
+                padding-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<div class="header">
+    <div class="header-inner">
+        <div class="logo-section">
+            <div style="font-size: 24px; font-weight: bold; color: #1a7f64;">INTIMA</div>
+        </div>
+
+        <div class="user-section">
+            <svg class="notification-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+                    </svg>
+                </div>
+                <!-- prefer model 'currentUser', fallback to authentication and literal -->
+                <span th:text="${currentUser != null ? currentUser : (#authentication != null ? #authentication.name : 'المستخدم')}">المستخدم</span>
+             </div>
+         </div>
+     </div>
+ </div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <ul class="sidebar-menu">
+        <li>
+            <a th:href="@{/dashboard}" th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''">
+                <svg class="menu-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                </svg>
+                <span>الرئيسية</span>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/projects}" th:classappend="${activeMenu == 'projects'} ? 'active' : ''">
+                <svg class="menu-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
+                </svg>
+                <span>المشاريع</span>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/tasks}" th:classappend="${activeMenu == 'tasks'} ? 'active' : ''">
+                <svg class="menu-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                <span>المهام</span>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/users}" th:classappend="${activeMenu == 'users'} ? 'active' : ''">
+                <svg class="menu-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                </svg>
+                <span>المستخدمون</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" onclick="document.getElementById('logoutForm').submit(); return false;">
+                <svg class="menu-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+                </svg>
+                <span>تسجيل الخروج</span>
+            </a>
+            <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
+        </li>
+    </ul>
+</div>
+
+<main class="app-container">
+    <div layout:fragment="content">
+        <!-- سيتم وضع محتوى الصفحات الفرعية هنا -->
+    </div>
+</main>
+</body>
+</html>

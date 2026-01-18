@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}" lang="ar" dir="rtl">
+<head>
+    <title>المشاريع</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 class="page-title">المشاريع</h1>
+                <div class="breadcrumb">
+                    <a th:href="@{/dashboard}">الرئيسية</a> / المشاريع
+                </div>
+            </div>
+            <a th:href="@{/projects/new}" class="btn btn-primary">
+                <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-left: 5px;" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                </svg>
+                مشروع جديد
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <div class="card">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>اسم المشروع</th>
+                <th>الحالة</th>
+                <th>الأولوية</th>
+                <th>تاريخ البداية</th>
+                <th>تاريخ النهاية</th>
+                <th>نسبة الإنجاز</th>
+                <th>الإجراءات</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="project, iterStat : ${projects}">
+                <td th:text="${iterStat.count}">1</td>
+                <td th:text="${project.name}">اسم المشروع</td>
+                <td>
+                            <span class="badge"
+                                  th:classappend="${project.status.name() == 'COMPLETED'} ? 'badge-success' :
+                                                 (${project.status.name() == 'IN_PROGRESS'} ? 'badge-info' :
+                                                 (${project.status.name() == 'CANCELLED'} ? 'badge-danger' : 'badge-warning'))"
+                                  th:text="${project.status.arabicName}">الحالة</span>
+                </td>
+                <td>
+                            <span class="badge"
+                                  th:classappend="${project.priority.name() == 'HIGH' || project.priority.name() == 'URGENT'} ? 'badge-danger' :
+                                                 (${project.priority.name() == 'MEDIUM'} ? 'badge-warning' : 'badge-info')"
+                                  th:text="${project.priority.arabicName}">الأولوية</span>
+                </td>
+                <td th:text="${#temporals.format(project.startDate, 'yyyy/MM/dd')}">2024/01/01</td>
+                <td>
+                            <span th:if="${project.endDate != null}"
+                                  th:text="${#temporals.format(project.endDate, 'yyyy/MM/dd')}">2024/12/31</span>
+                    <span th:unless="${project.endDate != null}">غير محدد</span>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="flex: 1; background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden;">
+                            <div style="background-color: #1a7f64; height: 100%; border-radius: 10px;"
+                                 th:style="'width: ' + ${project.completionPercentage} + '%'"></div>
+                        </div>
+                        <small th:text="${#numbers.formatDecimal(project.completionPercentage, 1, 1)} + '%'">0%</small>
+                    </div>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <a th:href="@{/projects/view/{id}(id=${project.id})}" class="action-btn action-btn-view">عرض</a>
+                        <a th:href="@{/projects/edit/{id}(id=${project.id})}" class="action-btn action-btn-edit">تعديل</a>
+                        <a th:href="@{/projects/delete/{id}(id=${project.id})}"
+                           onclick="return confirm('هل أنت متأكد من حذف هذا المشروع؟')"
+                           class="action-btn action-btn-delete">حذف</a>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(projects)}">
+                <td colspan="8" style="text-align: center; color: #999; padding: 40px;">
+                    لا توجد مشاريع حالياً
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

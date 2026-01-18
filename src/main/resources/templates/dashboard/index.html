@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="ar" dir="rtl">
+
+<head>
+    <title>لوحة التحكم</title>
+</head>
+
+<body>
+    <div class="main-content" layout:fragment="content">
+        <div class="page-header">
+            <h1 class="page-title">لوحة التحكم</h1>
+            <div class="breadcrumb">
+                <a href="#">الرئيسية</a> / لوحة التحكم
+            </div>
+        </div>
+
+        <!-- Statistics Cards   اللي تحت مايطلع -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 14px; color: #666; margin-bottom: 10px;">إجمالي المشاريع</div>
+                <div style="font-size: 32px; font-weight: bold; color: #1a7f64;" th:text="${totalProjects}">0</div>
+            </div>
+
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 14px; color: #666; margin-bottom: 10px;">المشاريع النشطة</div>
+                <div style="font-size: 32px; font-weight: bold; color: #2196F3;" th:text="${activeProjects}">0</div>
+            </div>
+
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 14px; color: #666; margin-bottom: 10px;">إجمالي المهام</div>
+                <div style="font-size: 32px; font-weight: bold; color: #FF9800;" th:text="${totalTasks}">0</div>
+            </div>
+
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 14px; color: #666; margin-bottom: 10px;">المهام المكتملة</div>
+                <div style="font-size: 32px; font-weight: bold; color: #4CAF50;" th:text="${completedTasks}">0</div>
+            </div>
+        </div>
+
+        <!-- Recent Projects -->
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>المشاريع الحديثة</span>
+                <a th:href="@{/projects}" class="btn btn-primary" style="font-size: 13px; padding: 8px 15px;">عرض الكل</a>
+            </div>
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>اسم المشروع</th>
+                    <th>الحالة</th>
+                    <th>الأولوية</th>
+                    <th>تاريخ البداية</th>
+                    <th>نسبة الإنجاز</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="project : ${recentProjects}">
+                    <td th:text="${project.name}">اسم المشروع</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${project.status.name() == 'COMPLETED'} ? 'badge-success' :
+                                             (${project.status.name() == 'IN_PROGRESS'} ? 'badge-info' : 'badge-warning')"
+                              th:text="${project.status.arabicName}">الحالة</span>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${project.priority.name() == 'HIGH' || project.priority.name() == 'URGENT'} ? 'badge-danger' :
+                                             (${project.priority.name() == 'MEDIUM'} ? 'badge-warning' : 'badge-info')"
+                              th:text="${project.priority.arabicName}">الأولوية</span>
+                    </td>
+                    <td th:text="${#temporals.format(project.startDate, 'yyyy/MM/dd')}">2024/01/01</td>
+                    <td th:with="p=${project.completionPercentage} ?: 0">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="flex: 1; background-color: #e0e0e0; height: 12px; border-radius: 10px; overflow: hidden;">
+                                <div role="progressbar"
+                                     th:style="'width:' + ${p} + '%'
+                                                "
+                                     th:class="${p} >= 75 ? 'progress-bar bg-success' : (${p} >= 50 ? 'progress-bar bg-warning' : (${p} >= 25 ? 'progress-bar bg-orange' : 'progress-bar bg-danger'))"
+                                     style="height:100%; border-radius:10px;">
+                                </div>
+                            </div>
+                            <small th:text="${#numbers.formatDecimal(p, 0, 0)} + '%'">0%</small>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(recentProjects)}">
+                    <td colspan="5" style="text-align: center; color: #999;">لا توجد مشاريع</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recent Tasks -->
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>المهام الحديثة</span>
+                <a th:href="@{/tasks}" class="btn btn-primary" style="font-size: 13px; padding: 8px 15px;">عرض الكل</a>
+            </div>
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>عنوان المهمة</th>
+                    <th>المشروع</th>
+                    <th>المكلف بها</th>
+                    <th>الحالة</th>
+                    <th>الأولوية</th>
+                    <th>تاريخ الاستحقاق</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="task : ${recentTasks}">
+                    <td th:text="${task.title}">عنوان المهمة</td>
+                    <td th:text="${task.project.name}">اسم المشروع</td>
+                    <td th:text="${task.assignedTo != null ? task.assignedTo.fullName : 'غير محدد'}">المكلف</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${task.status.name() == 'COMPLETED'} ? 'badge-success' :
+                                             (${task.status.name() == 'IN_PROGRESS'} ? 'badge-info' : 'badge-warning')"
+                              th:text="${task.status.arabicName}">الحالة</span>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${task.priority.name() == 'HIGH' || task.priority.name() == 'URGENT'} ? 'badge-danger' :
+                                             (${task.priority.name() == 'MEDIUM'} ? 'badge-warning' : 'badge-info')"
+                              th:text="${task.priority.arabicName}">الأولوية</span>
+                    </td>
+                    <td>
+                        <span th:if="${task.dueDate != null}"
+                              th:text="${#temporals.format(task.dueDate, 'yyyy/MM/dd')}"
+                              th:style="${task.overdue ? 'color: red; font-weight: bold;' : ''}">2024/01/01</span>
+                        <span th:unless="${task.dueDate != null}">غير محدد</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(recentTasks)}">
+                    <td colspan="6" style="text-align: center; color: #999;">لا توجد مهام</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

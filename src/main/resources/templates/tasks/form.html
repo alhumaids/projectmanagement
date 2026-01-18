@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}" lang="ar" dir="rtl">
+<head>
+    <title th:text="${task.id != null ? 'تعديل المهمة' : 'مهمة جديدة'}">مهمة جديدة</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header">
+        <h1 class="page-title" th:text="${task.id != null ? 'تعديل المهمة' : 'مهمة جديدة'}">مهمة جديدة</h1>
+        <div class="breadcrumb">
+            <a th:href="@{/dashboard}">الرئيسية</a> /
+            <a th:href="@{/templates/tasks}">المهام</a> /
+            <span th:text="${task.id != null ? 'تعديل' : 'جديد'}">جديد</span>
+        </div>
+    </div>
+
+    <div class="card" style="max-width: 800px;">
+        <form th:action="@{/tasks/save}" th:object="${task}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="form-group">
+                <label class="form-label" for="title">عنوان المهمة *</label>
+                <input type="text" class="form-control" id="title" th:field="*{title}" required />
+                <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" style="color: red; font-size: 13px; margin-top: 5px;"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="description">الوصف</label>
+                <textarea class="form-control" id="description" th:field="*{description}" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="project">المشروع *</label>
+                <select class="form-control" id="project" th:field="*{project.id}" required>
+                    <option value="">-- اختر المشروع --</option>
+                    <option th:each="project : ${projects}"
+                            th:value="${project.id}"
+                            th:text="${project.name}">اسم المشروع</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label class="form-label" for="status">الحالة *</label>
+                    <select class="form-control" id="status" th:field="*{status}" required>
+                        <option th:each="status : ${T(com.projectmanagement.model.Task.Status).values()}"
+                                th:value="${status}"
+                                th:text="${status.arabicName}">الحالة</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="priority">الأولوية *</label>
+                    <select class="form-control" id="priority" th:field="*{priority}" required>
+                        <option th:each="priority : ${T(com.projectmanagement.model.Task.Priority).values()}"
+                                th:value="${priority}"
+                                th:text="${priority.arabicName}">الأولوية</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label class="form-label" for="assignedTo">المكلف بالمهمة</label>
+                    <select class="form-control" id="assignedTo" th:field="*{assignedTo.id}">
+                        <option value="">-- غير محدد --</option>
+                        <option th:each="user : ${users}"
+                                th:value="${user.id}"
+                                th:text="${user.fullName}">اسم المستخدم</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="dueDate">تاريخ الاستحقاق</label>
+                    <input type="date" class="form-control" id="dueDate" th:field="*{dueDate}" />
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a th:href="@{/templates/tasks}" class="btn btn-secondary">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

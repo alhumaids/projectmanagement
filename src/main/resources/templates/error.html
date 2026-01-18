@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خطأ - نظام إدارة المشاريع</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a7f64 0%, #2d9f7f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            direction: rtl;
+        }
+
+        .error-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 500px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            background-color: #ffebee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-icon svg {
+            width: 50px;
+            height: 50px;
+            color: #f44336;
+        }
+
+        .error-title {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .error-details {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: right;
+        }
+
+        .error-details p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .error-details strong {
+            color: #333;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #1a7f64;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #156553;
+        }
+
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d0d0d0;
+        }
+
+        .help-text {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #999;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <div class="error-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+    </div>
+
+    <h1 class="error-title">عذراً، حدث خطأ!</h1>
+
+    <div class="error-message">
+        لا يمكن الوصول إلى الصفحة المطلوبة. قد يكون السبب أحد التالي:
+        <ul style="text-align: right; margin-top: 15px; list-style-position: inside;">
+            <li>ليس لديك صلاحية الوصول</li>
+            <li>الصفحة غير موجودة</li>
+            <li>هناك مشكلة في الاتصال</li>
+        </ul>
+    </div>
+
+    <div class="error-details" th:if="${status} or ${error}">
+        <p><strong>كود الخطأ:</strong> <span th:text="${status ?: 'غير معروف'}">500</span></p>
+        <p><strong>نوع الخطأ:</strong> <span th:text="${error ?: 'خطأ في الخادم'}">Internal Server Error</span></p>
+        <p th:if="${message}"><strong>التفاصيل:</strong> <span th:text="${message}"></span></p>
+        <p th:if="${path}"><strong>المسار:</strong> <span th:text="${path}"></span></p>
+    </div>
+
+    <div class="btn-group">
+        <a href="/dashboard" class="btn btn-primary">العودة للرئيسية</a>
+        <a href="/login" class="btn btn-secondary">تسجيل الدخول</a>
+    </div>
+
+    <div class="help-text">
+        إذا استمرت المشكلة، يرجى التواصل مع الدعم الفني
+    </div>
+</div>
+</body>
+</html>
