@@ -90,7 +90,7 @@
 
 <build>
     <plugins>
-        <!-- Compiler Plugin لتفعيل Lombok و Java 21 -->
+        <!-- Compiler Plugin -->
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
@@ -114,4 +114,5 @@
             <artifactId>spring-boot-maven-plugin</artifactId>
         </plugin>
     </plugins>
+</build>
 </project>
